@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # <bitbar.title>Weather</bitbar.title>
-# <bitbar.version>v1.0.0</bitbar.version>
+# <bitbar.version>v1.0.1</bitbar.version>
 # <bitbar.author>Kaibin Yang</bitbar.author>
 # <bitbar.author.github>SkyYkb</bitbar.author.github>
-# <bitbar.desc>Detailed weather plugin powered by ColorfulClouds with auto location lookup. Supports metric, SI and imperial units. Needs API key from http://caiyunapp.com/api/pricing.html.</bitbar.desc>
-# <bitbar.image>Placeholder</bitbar.image>
+# <bitbar.desc>Detailed weather plugin powered by ColorfulClouds with auto location lookup. Supports metric and imperial units. Needs API key from http://caiyunapp.com/api/pricing.html.</bitbar.desc>
+# <bitbar.image>https://github.com/SkyYkb/ColorfulClouds-BitBar-Plugin/raw/master/src/screenshot.png</bitbar.image>
 # <bitbar.dependencies>python</bitbar.dependencies>
 
 
@@ -22,6 +22,7 @@ import textwrap
 from random import randint
 import commands
 import os
+import math
 
 bitBarDarkMode = os.getenv('BitBarDarkMode', 0)
 textColor = "black"
@@ -36,7 +37,7 @@ geo_api_key = ''
 
 # if you want to set manual location, define following two vars. If left empty, script will try to determine the location
 # example:
-# manual_city = 'Wenzhou, Rui\'an, China'
+# manual_city = '浙江, 温州, 瑞安'
 # manual_latlng = '120.6,27.7'
 manual_city = ''
 manual_latlng = ''
@@ -95,9 +96,9 @@ def full_country_name(country):
   except urllib2.URLError:
     return False
 
-def calculate_bearing(degree):
-  cardinals = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
-  return cardinals[int(round(((6 * degree)) / 360))]
+def calculate_bearing(digree):
+  cardinals = ['北', '北东北', '东北', '东东北', '东','东东南', '东南', '南东南', '南', '南西南', '西南', '西西南', '西', '西西北', '西北', '北西北']
+  return cardinals[int(math.floor(digree/22.5))]
 
 def get_wx_icon(icon_code):
   if icon_code == 'CLEAR_DAY':
@@ -140,7 +141,7 @@ def get_wx():
 
   try:
     if 'loc' in location:
-      wx = json.load(urllib2.urlopen('https://api.caiyunapp.com/v2.5/' + api_key + '/' + location['loc'] + '/weather.json' + '?units=' + units))['result']
+      wx = json.load(urllib2.urlopen('https://api.caiyunapp.com/v2.5/' + api_key + '/' + location['loc'] + '/weather.json' + '?units=' + units + 'alert=true'))['result']
     else:
       return False
   except urllib2.HTTPError:
@@ -168,10 +169,9 @@ def get_wx():
           weather_data['temperature'] = str(int(round(wx['realtime']['temperature']))) + '°' + unit
         elif item == 'skycon':
           weather_data['icon'] = get_wx_icon(str(wx['realtime']['skycon']))
-        elif item == 'windSpeed':
-          weather_data['wind'] = str(wx['realtime']['windSpeed']) + ' ' + distance
         elif item == 'wind':
-          weather_data['windBearing'] = calculate_bearing(wx['realtime']['wind']['speed'])
+          weather_data['windBearing'] = calculate_bearing(wx['realtime']['wind']['direction'])
+          weather_data['windSpeed'] = (str(wx['realtime']['wind']['speed']) + distance)
         elif item == 'humidity':
           weather_data['humidity'] = str(int(round(wx['realtime']['humidity'] * 100))) + '%'
         elif item == 'visibility':
@@ -181,10 +181,19 @@ def get_wx():
         elif item == 'apparent_temperature':
           weather_data['feels_like'] = str(int(round(wx['realtime']['apparent_temperature']))) + '°' + unit
 
-    if 'minutely' in wx:
-      for item in wx['minutely']:
-        if item == 'summary':
-          weather_data['next_hour'] = str((wx['minutely']['summary'].encode('utf-8')))
+    if 'hourly' in wx:
+      for item in wx['hourly']:
+        if item == 'description':
+          weather_data['hourly'] = str((wx['hourly']['description'].encode('utf-8')))
+
+    if 'alert' in wx:
+      for item in wx['alert']:
+        if 'content' in wx['alert']:
+          for item in wx['alert']['content']:
+            if 'title' in wx['alert']['content']:
+              weather_data['alertTitle']=wx['alert']['content']['title']
+            if 'description' in wx['alert']['content']:
+              weather_data['alertDesc']=wx['alert']['content']['description']
 
     if 'city' in location and 'region' in location:
       if location['city'] == '' and location['region'] == '':
@@ -246,18 +255,16 @@ def render_wx():
 
   print ('---')
 
-  if 'next_hour' in weather_data:
-    print (weather_data['next_hour'] + ' | color=' + textColor)
+  if 'hourly' in weather_data:
+    print (weather_data['hourly'] + ' | color=' + textColor)
     print ('---')
-
-  print ('---')
 
   if 'week' in weather_data:
     print ("\n".join(textwrap.wrap(weather_data['week'], 50)) + ' | color=' + textColor)
     print ('---')
 
-  if 'wind' in weather_data and 'windBearing' in weather_data:
-    print ('风速: ' + weather_data['wind'] + ' ' + weather_data['windBearing'] + ' | color=' + textColor)
+  if 'windSpeed' in weather_data and 'windBearing' in weather_data:
+    print ('风: ' + weather_data['windSpeed'] + ' ' + weather_data['windBearing'] + ' | color=' + textColor)
 
   if 'humidity' in weather_data:
     print ('湿度: ' + weather_data['humidity'] + ' | color=' + textColor)
@@ -267,9 +274,14 @@ def render_wx():
 
   if 'pressure' in weather_data:
     print ('气压: ' + weather_data['pressure'] + ' | color=' + textColor)
-
+  
+  if 'alertTitle' in weather_data:
+    print ('---')
+    print (weather_data['alertTitle'])
+    print (weather_data['alertDesc'])
   print ('---')
   print ('数据来自彩云天气 | href=http://caiyunapp.com/')
   print ('刷新... | refresh=true')
+  print ('---')
 
 render_wx()

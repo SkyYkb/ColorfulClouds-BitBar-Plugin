@@ -37,7 +37,7 @@ geo_api_key = ''
 # if you want to set manual location, define following two vars. If left empty, script will try to determine the location
 # example:
 # manual_city = 'Wenzhou, Rui\'an, China'
-# manual_latlng = '120.6694467,27.7790084'
+# manual_latlng = '120.6,27.7'
 manual_city = ''
 manual_latlng = ''
 
@@ -166,8 +166,8 @@ def get_wx():
       for item in wx['realtime']:
         if item == 'temperature':
           weather_data['temperature'] = str(int(round(wx['realtime']['temperature']))) + '°' + unit
-        elif item == 'icon':
-          weather_data['skycon'] = get_wx_icon(str(wx['realtime']['skycon']))
+        elif item == 'skycon':
+          weather_data['icon'] = get_wx_icon(str(wx['realtime']['skycon']))
         elif item == 'windSpeed':
           weather_data['wind'] = str(wx['realtime']['windSpeed']) + ' ' + distance
         elif item == 'wind':
@@ -177,7 +177,7 @@ def get_wx():
         elif item == 'visibility':
           weather_data['visibility'] = str(int(round(wx['realtime']['visibility']))) + ' ' + distance_short
         elif item == 'pressure':
-          weather_data['pressure'] = str(wx['realtime']['pressure']) + ' mb'
+          weather_data['pressure'] = str(wx['realtime']['pressure']/100) + ' mb'
         elif item == 'apparent_temperature':
           weather_data['feels_like'] = str(int(round(wx['realtime']['apparent_temperature']))) + '°' + unit
 
@@ -242,33 +242,34 @@ def render_wx():
     print (weather_data['preformatted'] + ' | href=http://caiyunapp.com/map/#' + weather_data['loc'])
 
   if 'condition' in weather_data and 'feels_like' in weather_data:
-    print (weather_data['condition'] + ', 体感: ' + weather_data['feels_like'])
+    print (weather_data['condition'] + ', 体感: ' + weather_data['feels_like'] + ' | color=' + textColor)
 
   print ('---')
 
   if 'next_hour' in weather_data:
-    print (weather_data['next_hour'])
+    print (weather_data['next_hour'] + ' | color=' + textColor)
     print ('---')
 
   print ('---')
 
   if 'week' in weather_data:
-    print ("\n".join(textwrap.wrap(weather_data['week'], 50)))
+    print ("\n".join(textwrap.wrap(weather_data['week'], 50)) + ' | color=' + textColor)
     print ('---')
 
   if 'wind' in weather_data and 'windBearing' in weather_data:
-    print ('风速: ' + weather_data['wind'] + ' ' + weather_data['windBearing'])
+    print ('风速: ' + weather_data['wind'] + ' ' + weather_data['windBearing'] + ' | color=' + textColor)
 
   if 'humidity' in weather_data:
-    print ('湿度: ' + weather_data['humidity'])
+    print ('湿度: ' + weather_data['humidity'] + ' | color=' + textColor)
 
   if 'visibility' in weather_data:
-    print ('能见度: ' + weather_data['visibility'])
+    print ('能见度: ' + weather_data['visibility'] + ' | color=' + textColor)
 
   if 'pressure' in weather_data:
-    print ('气压: ' + weather_data['pressure'])
+    print ('气压: ' + weather_data['pressure'] + ' | color=' + textColor)
 
   print ('---')
-  print ('Powered by ColorfulClouds | href=http://caiyunapp.com/')
+  print ('数据来自彩云天气 | href=http://caiyunapp.com/')
+  print ('刷新... | refresh=true')
 
 render_wx()

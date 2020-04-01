@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # <bitbar.title>Weather</bitbar.title>
-# <bitbar.version>v1.0.2</bitbar.version>
+# <bitbar.version>v1.0.3</bitbar.version>
 # <bitbar.author>Kaibin Yang</bitbar.author>
 # <bitbar.author.github>SkyYkb</bitbar.author.github>
 # <bitbar.desc>Detailed weather plugin powered by ColorfulClouds with auto location lookup. Supports metric and imperial units. Needs API key from http://caiyunapp.com/api/pricing.html.</bitbar.desc>
@@ -186,6 +186,12 @@ def get_wx():
         if item == 'description':
           weather_data['hourly'] = str((wx['hourly']['description'].encode('utf-8')))
 
+    if 'probability' in wx['minutely']:
+      weather_data['rainProba30'] = str(wx['minutely']['probability'][0]*100) + '%'
+      weather_data['rainProba60'] = str(wx['minutely']['probability'][1]*100) + '%'
+      weather_data['rainProba90'] = str(wx['minutely']['probability'][2]*100) + '%'
+      weather_data['rainProba120'] = str(wx['minutely']['probability'][3]*100) + '%'
+
     if 'alert' in wx:
       for item in wx['alert']:
         if 'content' in wx['alert']:
@@ -275,6 +281,13 @@ def render_wx():
   if 'pressure' in weather_data:
     print ('气压: ' + weather_data['pressure'] + ' | color=' + textColor)
   
+  if 'rainProba30' in weather_data:
+    print ('2小时内降雨概率')
+    print ('-- 30分钟后: ' + weather_data['rainProba30'] + ' | color=' + textColor)
+    print ('-- 1小时后: ' + weather_data['rainProba60'] + ' | color=' + textColor)
+    print ('-- 1小时30分钟后: ' + weather_data['rainProba90'] + ' | color=' + textColor)
+    print ('-- 2小时后: ' + weather_data['rainProba120'] + ' | color=' + textColor)
+
   if 'alertTitle' in weather_data:
     print ('---')
     print (weather_data['alertTitle'] + ' | color=red')

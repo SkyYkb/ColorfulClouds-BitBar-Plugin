@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # <bitbar.title>Weather</bitbar.title>
-# <bitbar.version>v1.0.1</bitbar.version>
+# <bitbar.version>v1.0.2</bitbar.version>
 # <bitbar.author>Kaibin Yang</bitbar.author>
 # <bitbar.author.github>SkyYkb</bitbar.author.github>
 # <bitbar.desc>Detailed weather plugin powered by ColorfulClouds with auto location lookup. Supports metric and imperial units. Needs API key from http://caiyunapp.com/api/pricing.html.</bitbar.desc>
@@ -97,7 +97,7 @@ def full_country_name(country):
     return False
 
 def calculate_bearing(digree):
-  cardinals = ['北', '北东北', '东北', '东东北', '东','东东南', '东南', '南东南', '南', '南西南', '西南', '西西南', '西', '西西北', '西北', '北西北']
+  cardinals = ['北', '北东北', '东北', '东东北', '东', '东东南', '东南', '南东南', '南', '南西南', '西南', '西西南', '西', '西西北', '西北', '北西北']
   return cardinals[int(math.floor(digree/22.5))]
 
 def get_wx_icon(icon_code):
@@ -277,8 +277,8 @@ def render_wx():
   
   if 'alertTitle' in weather_data:
     print ('---')
-    print (weather_data['alertTitle'])
-    print (weather_data['alertDesc'])
+    print (weather_data['alertTitle'] + ' | color=red')
+    print (weather_data['alertDesc'] + ' | color=red')
   print ('---')
   print ('数据来自彩云天气 | href=http://caiyunapp.com/')
   print ('刷新... | refresh=true')

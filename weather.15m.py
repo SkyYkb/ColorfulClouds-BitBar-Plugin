@@ -192,8 +192,9 @@ def get_wx():
       weather_data['rainProba120'] = str(wx['minutely']['probability'][3]*100) + '%'
 
     ale=0
-    if 'content' in wx['alert']:
-      for item in wx['alert']['content']:
+    if 'alert' in wx:
+      if 'content' in wx['alert']:
+       for item in wx['alert']['content']:
         weather_data['alent'][ale]['title']=str(item['title'])
         weather_data['alent'][ale]['description']=str(item['description'])
         ale+=1

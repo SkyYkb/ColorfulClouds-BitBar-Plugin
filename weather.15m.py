@@ -191,10 +191,12 @@ def get_wx():
       weather_data['rainProba90'] = str(wx['minutely']['probability'][2]*100) + '%'
       weather_data['rainProba120'] = str(wx['minutely']['probability'][3]*100) + '%'
 
+    ale=0
     if 'content' in wx['alert']:
       for item in wx['alert']['content']:
-        weather_data['alent'][item]['title']=str(wx['alert']['content'][item]['title'])
-        weather_data['alent'][item]['description']=str(wx['alert']['content'][item]['description'])
+        weather_data['alent'][ale]['title']=str(item['title'])
+        weather_data['alent'][ale]['description']=str(item['description'])
+        ale+=1
 
     if 'city' in location and 'region' in location:
       if location['city'] == '' and location['region'] == '':
@@ -286,8 +288,8 @@ def render_wx():
   if 'alert' in weather_data:
     for item in weather_data['alert']:
       print ('---')
-      print (weather_data['alert'][item]['title'] + ': | color=red')
-      print (weather_data['alert'][item]['description'] + ' | color=red')
+      print (item['title'] + ': | color=red')
+      print (item['description'] + ' | color=red')
 
   print ('---')
   print ('数据来自彩云天气 | href=http://caiyunapp.com/')

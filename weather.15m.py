@@ -42,7 +42,6 @@ geo_api_key = ''
 manual_city = ''
 manual_latlng = ''
 
-
 # set to imperial or metric
 units = 'metric'
 
@@ -192,14 +191,10 @@ def get_wx():
       weather_data['rainProba90'] = str(wx['minutely']['probability'][2]*100) + '%'
       weather_data['rainProba120'] = str(wx['minutely']['probability'][3]*100) + '%'
 
-    if 'alert' in wx:
-      for item in wx['alert']:
-        if 'content' in wx['alert']:
-          for item in wx['alert']['content']:
-            if 'title' in wx['alert']['content']:
-              weather_data['alertTitle']=wx['alert']['content']['title']
-            if 'description' in wx['alert']['content']:
-              weather_data['alertDesc']=wx['alert']['content']['description']
+    if 'content' in wx['alert']:
+      for item in wx['alert']['content']:
+        weather_data['alent'][item]['title']=str(wx['alert']['content'][item]['title'])
+        weather_data['alent'][item]['description']=str(wx['alert']['content'][item]['description'])
 
     if 'city' in location and 'region' in location:
       if location['city'] == '' and location['region'] == '':
@@ -288,10 +283,12 @@ def render_wx():
     print ('-- 1小时30分钟后: ' + weather_data['rainProba90'] + ' | color=' + textColor)
     print ('-- 2小时后: ' + weather_data['rainProba120'] + ' | color=' + textColor)
 
-  if 'alertTitle' in weather_data:
-    print ('---')
-    print (weather_data['alertTitle'] + ' | color=red')
-    print (weather_data['alertDesc'] + ' | color=red')
+  if 'alert' in weather_data:
+    for item in weather_data['alert']:
+      print ('---')
+      print (weather_data['alert'][item]['title'] + ': | color=red')
+      print (weather_data['alert'][item]['description'] + ' | color=red')
+
   print ('---')
   print ('数据来自彩云天气 | href=http://caiyunapp.com/')
   print ('刷新... | refresh=true')
